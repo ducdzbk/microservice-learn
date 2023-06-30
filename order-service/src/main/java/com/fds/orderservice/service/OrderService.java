@@ -52,8 +52,8 @@ public class OrderService {
                 .map(OrderLineItems::getSkuCode).collect(Collectors.toList());
 
         WebClient client = WebClient.create();
-       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Authentication: " + authentication);
+//       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println("Authentication: " + authentication);
 //       JSONObject principalObj = new JSONObject(authentication.getPrincipal());
 //
 //
