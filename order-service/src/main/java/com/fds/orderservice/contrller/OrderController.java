@@ -25,14 +25,15 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     @CircuitBreaker(name = "inventory",fallbackMethod = "fallbackMethod")
     @TimeLimiter(name = "inventory")
-    @Retry(name = "inventory")
+   @Retry(name = "inventory")
     public CompletableFuture<String> placeOrder(@RequestBody OrderRequest orderRequest){
-     return CompletableFuture.supplyAsync(()->orderService.placeOrder(orderRequest));
-
+    return CompletableFuture.supplyAsync(()->orderService.placeOrder(orderRequest));
+//    public String placeOrder(@RequestBody OrderRequest orderRequest){
+//        return orderService.placeOrder(orderRequest);
 
     }
     public CompletableFuture<String> fallbackMethod(OrderRequest orderRequest,RuntimeException runtimeException){
        return CompletableFuture.supplyAsync(()-> "đang gặp vấn đề, xin vui lòng thử lại sau") ;
-     //   return "đang gặp vấn đề, xin vui lòng thử lại sau";
+      //  return "đang gặp vấn đề, xin vui lòng thử lại sau";
     }
 }
