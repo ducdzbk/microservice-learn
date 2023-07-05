@@ -25,7 +25,7 @@ public class InventoryService {
    @Transactional(readOnly = true)
     public List<InventoryRespon> isInStock(List<String> skuCode){
        log.info("bắt đầu");
-    //  Thread.sleep(10000);
+     // Thread.sleep(10000);
        log.info("kết thúc");
        return  inventoryRepository.findBySkuCodeIn(skuCode)
                .stream()

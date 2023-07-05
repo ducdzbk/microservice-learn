@@ -3,6 +3,7 @@ package com.fds.orderservice.service;
 import com.fds.orderservice.dto.InventoryRespon;
 import com.fds.orderservice.dto.OrderLineItemsDto;
 import com.fds.orderservice.dto.OrderRequest;
+import com.fds.orderservice.exception.NotfoundException;
 import com.fds.orderservice.exception.handle.CustomAccessDeniedHandler;
 import com.fds.orderservice.model.Order;
 import com.fds.orderservice.model.OrderLineItems;
@@ -15,16 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Service
+@Transactional
 public class OrderService {
     @Autowired
     private  OrderRepository orderRepository;
@@ -48,10 +52,7 @@ public class OrderService {
 
         WebClient client = WebClient.create();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-     //   MyRunnable myRunnable = new MyRunnable();
-     //   new Thread(myRunnable).start();
-
-        JSONObject principalObj = new JSONObject(authentication.getPrincipal());
+           JSONObject principalObj = new JSONObject(authentication.getPrincipal());
 
        String token=principalObj.getString("tokenValue");
 
@@ -68,7 +69,6 @@ public class OrderService {
             System.out.println("array null");
             }
 
-
         boolean allproduct = Arrays.stream(inventoryResponsArray).allMatch(InventoryRespon::isInStock);
         // Arrays.stream(inventoryResponsArray).allMatch(inventoryRespon -> inventoryRespon.isInStock());
         if(allproduct){
@@ -78,49 +78,18 @@ public class OrderService {
         }else {
             throw new IllegalArgumentException("KHÔNG TỒN TẠI");
         }
-//        List<String> skuCodes = order.getOrderLineItemsList()
-//                        .stream()
-//                .map(OrderLineItems::getSkuCode).collect(Collectors.toList());//lấy ra mã skuCode của từng item
-//
-//        InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
-//                .uri("http://inventory-service/api/inventory",
-//                        uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
-//                .retrieve()
-//                .bodyToMono(InventoryResponse[].class)
-//                .block();
-//
-//        boolean allProductInstock = Arrays.stream(inventoryResponArray).allMatch(InventoryRespon::isInStock);
-//        // kiểm tra tất cả các phần tử của mảng đó có thuộc InStock hay ko, nếu tất cả đều thuộc thì trả về true
-//       if(allProductInstock){
-//        orderRepository.save(order);}
-//       else {
-//           throw new IllegalAccessException("lỗi rồi");
-//      }
-
-
-
-
-
-//        WebClient client = WebClient.create();
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        JSONObject principalObj = new JSONObject(authentication.getPrincipal());
-//
-//        String token=principalObj.getString("tokenValue");
-//
-//        String response = client.get()
-//                .uri(new URI("http://localhost:8082/api/inventory?skuCode="+skuCodes.stream().toString()))
-//
-//                .header("Authorization", "Bearer"+" " +token)
-//
-//                .accept(MediaType.APPLICATION_JSON)
-//
-//                .retrieve()
-//                .bodyToMono(String.class)
-//                .block();
-
 
     }
 
+
+    public void deleteOrderByOrderNumber(String orderNumber){
+        Optional<Order> order=orderRepository.findByOrderNumber(orderNumber);
+        if(order!=null){
+            orderRepository.deleteByOrderNumber(orderNumber);
+        }else {
+            throw new RuntimeException();
+        }
+    }
 
     private OrderLineItems maptoDto(OrderLineItemsDto orderLineItemsDto) {
         OrderLineItems orderLineItems = new OrderLineItems();
