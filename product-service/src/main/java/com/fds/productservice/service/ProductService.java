@@ -31,12 +31,13 @@ public class ProductService {
                 .description(productRequest.getDescription())
                 .price(productRequest.getPrice())
                 .build();
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
         productRepository.save(product);
         log.info("product {} is save", product.getId());// id của product sẽ được điền vào trong place holder {}
     }
 
-    public List<ProductRespon> getAllProduct() {
+    public List<ProductRespon> getAllProduct() throws InterruptedException {
+        Thread.sleep(3100);
        List<Product> products= productRepository.findAll();
     return products.stream().map(this::maptoProductResponse).collect(Collectors.toList());
     /*
