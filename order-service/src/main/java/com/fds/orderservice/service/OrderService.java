@@ -3,6 +3,7 @@ package com.fds.orderservice.service;
 import com.fds.orderservice.dto.InventoryRespon;
 import com.fds.orderservice.dto.OrderLineItemsDto;
 import com.fds.orderservice.dto.OrderRequest;
+import com.fds.orderservice.dto.ProductRespon;
 import com.fds.orderservice.exception.NotfoundException;
 import com.fds.orderservice.exception.handle.CustomAccessDeniedHandler;
 import com.fds.orderservice.model.Order;
@@ -91,6 +92,25 @@ public class OrderService {
         }
     }
 
+
+    public String viewProduct() {
+        WebClient client = WebClient.create();
+        ProductRespon[] productViews = webClientBuilder.build().get()
+                .uri("http://localhost:8081/api/product")
+
+                .retrieve()
+                .bodyToMono(ProductRespon[].class)
+                .block();
+        if (productViews != null) {
+            for (ProductRespon productRespon : productViews) {
+                System.out.println(productRespon.toString());
+                return "đã in tất cả product";
+            }
+        }else{
+            throw new RuntimeException();
+        }
+        return null;
+    }
     private OrderLineItems maptoDto(OrderLineItemsDto orderLineItemsDto) {
         OrderLineItems orderLineItems = new OrderLineItems();
         orderLineItems.setQuantity(orderLineItemsDto.getQuantity());

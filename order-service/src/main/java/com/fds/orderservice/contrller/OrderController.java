@@ -1,6 +1,7 @@
 package com.fds.orderservice.contrller;
 
 import com.fds.orderservice.dto.OrderRequest;
+import com.fds.orderservice.dto.ProductRespon;
 import com.fds.orderservice.service.OrderService;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -35,6 +37,10 @@ public class OrderController {
     @DeleteMapping
     public void deleteOrder(@RequestParam(name = "orderNumber") String orderNumber){
         orderService.deleteOrderByOrderNumber(orderNumber);
+    }
+    @GetMapping
+    public CompletableFuture<String> viewProduct() {
+        return CompletableFuture.supplyAsync(() -> orderService.viewProduct());
     }
     public CompletableFuture<String> fallbackMethod(OrderRequest orderRequest,RuntimeException runtimeException){
        return CompletableFuture.supplyAsync(()-> "đang gặp vấn đề, xin vui lòng thử lại sau") ;
