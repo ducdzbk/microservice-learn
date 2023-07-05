@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 
 
 @RestController
@@ -23,9 +24,9 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
-    @TimeLimiter(name = "inventory")
-    @Retry(name = "inventory")
-    public String placeOrder(@RequestBody OrderRequest orderRequest) {
+    @TimeLimiter(name = "inventory", fallbackMethod = "fallbackMethod")
+//    @Retry(name = "inventory")
+    public CompletableFuture<String> placeOrder(@RequestBody OrderRequest orderRequest) {
         return orderService.placeOrder(orderRequest);
     }
 

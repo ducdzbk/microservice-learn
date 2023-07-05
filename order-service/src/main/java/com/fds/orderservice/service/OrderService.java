@@ -40,7 +40,7 @@ public class OrderService {
 
     @SneakyThrows// tự động bắt và xử lý ngoại lệ
     // public String  placeOrder(OrderRequest orderRequest) {
-    public String placeOrder(OrderRequest orderRequest) {
+    public CompletableFuture<String> placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
         List<OrderLineItems> orderLineItems = orderRequest.getOrderLineItemsDtoList().stream()
@@ -67,7 +67,7 @@ public class OrderService {
             return "N";
 
         });
-        return combinedFuture.get();
+        return combinedFuture;
     }
 
 
