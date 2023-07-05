@@ -8,6 +8,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,7 +19,7 @@ import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/api/order")
-
+@EnableTransactionManagement
 public class OrderController {
     @Autowired
     private  OrderService orderService;
@@ -28,12 +30,13 @@ public class OrderController {
    @Retry(name = "inventory")
     public CompletableFuture<String> placeOrder(@RequestBody OrderRequest orderRequest){
     return CompletableFuture.supplyAsync(()->orderService.placeOrder(orderRequest));
-//    public String placeOrder(@RequestBody OrderRequest orderRequest){
-//        return orderService.placeOrder(orderRequest);
+    }
 
+    @DeleteMapping
+    public void deleteOrder(@RequestParam(name = "orderNumber") String orderNumber){
+        orderService.deleteOrderByOrderNumber(orderNumber);
     }
     public CompletableFuture<String> fallbackMethod(OrderRequest orderRequest,RuntimeException runtimeException){
        return CompletableFuture.supplyAsync(()-> "đang gặp vấn đề, xin vui lòng thử lại sau") ;
-      //  return "đang gặp vấn đề, xin vui lòng thử lại sau";
     }
 }
