@@ -25,5 +25,9 @@ public class ProductController {
     public List<ProductRespon> getAllProduct() throws InterruptedException {
        return  productService.getAllProduct();
     }
+    @DeleteMapping
+    public void deleteProductById(@RequestParam(name = "id") String id){
+        productService.deleteProduct(id);
+    }
 
 }

@@ -38,8 +38,9 @@ public class OrderService {
     @Autowired
     private CustomAccessDeniedHandler customAccessDeniedHandler;
 
+
     @SneakyThrows// tự động bắt và xử lý ngoại lệ
-    // public String  placeOrder(OrderRequest orderRequest) {
+
     public CompletableFuture<String> placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
@@ -60,11 +61,11 @@ public class OrderService {
             return checkOrderInventory(skuCodes, order);
         });
 
-        CompletableFuture<String> combinedFuture = future1.thenCombine(future2, (tmp1, tmp2) -> {
-            if (tmp1.equals("Y") && tmp2.equals("Y")) {
-                return "Y";
+        CompletableFuture<String> combinedFuture = future1.exceptionally(ex -> "N").thenCombine(future2.exceptionally(ex -> "N"), (tmp1, tmp2) -> {
+            if (tmp1.equals("Y-viewProduct") && tmp2.equals("Y-inventory")) {
+                return "Đặt hàng thành công";
             }
-            return "N";
+            return "thất bại";
 
         });
         return combinedFuture;
@@ -72,8 +73,11 @@ public class OrderService {
 
 
     public void deleteOrderByOrderNumber(String orderNumber) {
-        Optional<Order> order = orderRepository.findByOrderNumber(orderNumber);
-        if (order != null) {
+
+        Optional<Order> order=orderRepository.findByOrderNumber(orderNumber);
+       boolean order1 = orderRepository.findByOrderNumber(orderNumber).isPresent();
+        if (order1) {
+           System.out.println(order.get());
             orderRepository.deleteByOrderNumber(orderNumber);
         } else {
             throw new RuntimeException();
@@ -89,9 +93,11 @@ public class OrderService {
                 .bodyToMono(ProductRespon[].class)
                 .block();
         if (productViews != null) {
-            return "Y";
+            for (ProductRespon productRespon : productViews) {
+                System.out.println(productRespon.toString());}
+            return "Y-viewProduct";
         } else {
-            return "N";
+            return "N-viewProduct";
         }
     }
 
@@ -118,11 +124,10 @@ public class OrderService {
 
         boolean allproduct = Arrays.stream(inventoryResponsArray).allMatch(InventoryRespon::isInStock);
         if (allproduct) {
-
             orderRepository.save(order);
-            return "Y";
+            return "Y-inventory";
         } else {
-            return "N";
+            return "N-inventory";
         }
     }
 

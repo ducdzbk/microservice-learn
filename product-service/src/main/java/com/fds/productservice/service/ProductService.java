@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 //@RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class ProductService {
     }
 
     public List<ProductRespon> getAllProduct() throws InterruptedException {
-        Thread.sleep(3100);
+       Thread.sleep(2000);
        List<Product> products= productRepository.findAll();
     return products.stream().map(this::maptoProductResponse).collect(Collectors.toList());
     /*
@@ -45,6 +46,24 @@ public class ProductService {
          đó với từng product thì thực hiện mã mapto.
         collect(Collectors.toList()) để chuyển lại về dạng list
         */
+    }
+    public void deleteProduct(String id){
+     boolean product=productRepository.findById(id).isPresent();
+      if(product){
+          productRepository.deleteProductById(id);
+
+      }else {
+       throw new RuntimeException("id không tồn tại");
+      }
+    }
+    public void deleteProductName(String name) {
+        boolean product = productRepository.findProductByName(name).isPresent();
+        if (product) {
+            productRepository.deleteProductByName(name);
+
+        } else {
+            throw new RuntimeException("id không tồn tại");
+        }
     }
 
     private ProductRespon maptoProductResponse(Product product) {
